@@ -1,0 +1,150 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="space-y-6 text-slate-800">
+  <!-- مبلغ -->
+  <div>
+    @let amountError = form.controls.amount.touched && form.controls.amount.invalid;
+
+    <label class="block mb-2 text-sm font-medium text-slate-500">مبلغ</label>
+    <div class="relative">
+      <input type="text" inputmode="numeric" appMoneyInput formControlName="amount"
+        placeholder="مثلاً ۲۵۰٬۰۰۰"
+        class="w-full rounded-2xl border bg-white py-4 pr-4 pl-24 text-2xl font-bold outline-none transition
+               placeholder:text-base placeholder:font-normal placeholder:text-slate-300
+               hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10"
+        [class]="amountError ? 'border-rose-400' : 'border-slate-200'" />
+      <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2
+                   rounded-xl bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-500">
+        تومان
+      </span>
+    </div>
+
+    <div class="mt-2 min-h-5 text-sm">
+      @if (amountError) {
+        <p class="text-rose-600">مبلغ رو درست وارد کن</p>
+      }
+    </div>
+
+    <div class="mt-2 flex flex-wrap gap-2">
+      @for (q of quickAmounts; track q) {
+        <button type="button" (click)="addAmount(q)"
+          class="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600
+                 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700">
+          +{{ q | faNumber }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- دسته‌بندی -->
+  <div>
+    <label class="block mb-2 text-sm font-medium text-slate-500">دسته‌بندی</label>
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      @for (c of categories; track c.key) {
+        @let selected = form.controls.category.value === c.key;
+        <button type="button"
+          (click)="form.controls.category.setValue(c.key)"
+          [attr.aria-pressed]="selected"
+          class="flex items-center gap-2.5 rounded-2xl border px-3 py-2.5 text-sm font-medium transition"
+          [class]="selected
+            ? 'border-emerald-600 bg-emerald-600 text-white shadow-md shadow-emerald-600/25'
+            : 'border-slate-200 bg-white text-slate-600 hover:border-emerald-300 hover:bg-emerald-50'">
+          <span class="grid size-8 shrink-0 place-items-center rounded-xl text-lg transition"
+                [class]="selected ? 'bg-white/20' : 'bg-slate-100'">
+            {{ c.icon }}
+          </span>
+          {{ c.label }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- تاریخ شمسی -->
+  <div formGroupName="date">
+    <div class="flex items-center justify-between mb-2">
+      <label class="text-sm font-medium text-slate-500">تاریخ</label>
+      <div class="flex gap-1.5">
+        <button type="button" (click)="setDaysAgo(0)"
+          class="rounded-full border px-3 py-1 text-xs font-medium transition"
+          [class]="quickPick() === 'today'
+            ? 'border-emerald-600 bg-emerald-600 text-white'
+            : 'border-slate-200 bg-white text-slate-500 hover:border-emerald-300 hover:text-emerald-700'">
+          امروز
+        </button>
+        <button type="button" (click)="setDaysAgo(1)"
+          class="rounded-full border px-3 py-1 text-xs font-medium transition"
+          [class]="quickPick() === 'yesterday'
+            ? 'border-emerald-600 bg-emerald-600 text-white'
+            : 'border-slate-200 bg-white text-slate-500 hover:border-emerald-300 hover:text-emerald-700'">
+          دیروز
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-[1fr_1.4fr_1fr] gap-2">
+      <!-- روز -->
+      <div>
+        <div class="relative">
+          <select formControlName="jd"
+            class="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-8
+                   text-center font-medium outline-none transition
+                   hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10">
+            @for (d of days(); track d) {
+              <option [ngValue]="d">{{ d | faNumber }}</option>
+            }
+          </select>
+          <svg class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+               viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <span class="mt-1 block text-center text-[11px] text-slate-400">روز</span>
+      </div>
+
+      <!-- ماه -->
+      <div>
+        <div class="relative">
+          <select formControlName="jm"
+            class="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-8
+                   text-center font-medium outline-none transition
+                   hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10">
+            @for (m of months; track $index) {
+              <option [ngValue]="$index + 1">{{ m }}</option>
+            }
+          </select>
+          <svg class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+               viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <span class="mt-1 block text-center text-[11px] text-slate-400">ماه</span>
+      </div>
+
+      <!-- سال -->
+      <div>
+        <div class="relative">
+          <select formControlName="jy"
+            class="w-full appearance-none rounded-2xl border border-slate-200 bg-white py-3 pr-4 pl-8
+                   text-center font-medium outline-none transition
+                   hover:border-emerald-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10">
+            @for (y of years; track y) {
+              <option [ngValue]="y">{{ y | faNumber: false }}</option>
+            }
+          </select>
+          <svg class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+               viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.17l3.71-3.94a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" />
+          </svg>
+        </div>
+        <span class="mt-1 block text-center text-[11px] text-slate-400">سال</span>
+      </div>
+    </div>
+  </div>
+
+  <button type="submit"
+    class="w-full rounded-2xl py-4 font-bold text-white bg-gradient-to-l from-emerald-600 to-teal-500
+           shadow-lg shadow-emerald-600/30 hover:brightness-110 active:scale-[0.98] transition">
+    {{ submitLabel() }}
+  </button>
+</form>
